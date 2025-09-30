@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Main Website</title>
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+h1 {
+    color: white;
+    text-shadow: 2px 2px 4px black;
+}
+button {
+    display: block;
+    width: 200px;
+    margin: 15px auto;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+}
+button:hover { transform: scale(1.05); }
+.status-message {
+    font-size: 20px;
+    margin-top: 50px;
+    color: white;
+}
+</style>
+</head>
+<body>
+
+<h1 id="websiteTitle"># 🌈 My Colorful Website</h1>
+<div id="buttons"></div>
+<div class="status-message" id="statusMsg"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCtDWs_Ft0e2NcU-dtwaWPfy-gAXa0azQg",
+  authDomain: "tanzim-main-admin-app.firebaseapp.com",
+  databaseURL: "https://tanzim-main-admin-app-default-rtdb.firebaseio.com",
+  projectId: "tanzim-main-admin-app",
+  storageBucket: "tanzim-main-admin-app.appspot.com",
+  messagingSenderId: "12436676722",
+  appId: "1:12436676722:web:f066ffbc343f0117eea2eb",
+  measurementId: "G-QKK68SK6BN"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const buttonsDiv = document.getElementById("buttons");
+const statusMsg = document.getElementById("statusMsg");
+
+db.ref("appStatus").on("value", snapshot => {
+  const status = snapshot.val() || "on";
+  if (status === "off") {
+    buttonsDiv.innerHTML = "";
+    statusMsg.innerText = "⚠️ এডমিন দ্বারা ওয়েবসাইটটি বন্ধ করা হয়েছে।";
+  } else {
+    statusMsg.innerText = "";
+    loadButtons();
+  }
+});
+
+function loadButtons() {
+  buttonsDiv.innerHTML = "";
+  db.ref("buttons").once("value").then(snapshot => {
+    const buttons = snapshot.val() || {};
+    for (let i = 0; i < 5; i++) {
+      const btnData = buttons[`button${i}`] || { text: `Button ${i+1}`, link: "#", color: "#ff0000" };
+      const btn = document.createElement("button");
+      btn.innerText = btnData.text;
+      btn.style.background = btnData.color;
+      btn.onclick = () => { window.location.href = btnData.link; };
+      buttonsDiv.appendChild(btn);
+    }
+  });
+}
+
+firebase.database().ref("websiteTitle").on("value", snapshot => {
+    document.getElementById("websiteTitle").innerText = snapshot.val() || "# 🌈 My Colorful Website";
+});
+</script>
+
+</body>
+</html>
